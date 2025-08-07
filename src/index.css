@@ -103,3 +103,35 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+/* Design enhancements: gradients, shadows, signature interactions */
+@layer base {
+  :root {
+    --brand: 262 83% 60%;
+    --brand-2: 200 95% 55%;
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--brand)) 50%, hsl(var(--brand-2)) 100%);
+    --shadow-elevated: 0 12px 30px hsl(var(--primary) / 0.18);
+  }
+  .dark {
+    --brand: 262 83% 70%;
+    --brand-2: 200 95% 60%;
+    --gradient-primary: linear-gradient(135deg, hsl(var(--brand-2)) 0%, hsl(var(--brand)) 60%, hsl(var(--primary)) 100%);
+    --shadow-elevated: 0 12px 30px hsl(var(--ring) / 0.35);
+  }
+}
+
+@layer components {
+  .btn-hero {
+    background-image: var(--gradient-primary);
+    color: hsl(var(--primary-foreground));
+    box-shadow: var(--shadow-elevated);
+    transition: var(--transition-smooth, all 0.3s cubic-bezier(0.4, 0, 0.2, 1));
+  }
+  .btn-hero:hover { filter: brightness(1.05); }
+  .btn-hero:active { transform: translateY(1px); }
+
+  .surface-gradient {
+    background: radial-gradient(800px 600px at var(--pointer-x, 50%) var(--pointer-y, 50%), hsl(var(--brand) / 0.08), transparent 40%),
+                linear-gradient(180deg, hsl(var(--background)), hsl(var(--background)) 60%, hsl(var(--accent) / 0.25));
+  }
+}
