@@ -1,6 +1,7 @@
 import type React from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 
@@ -112,7 +113,7 @@ function Grid({
               const hasShip = cell.hasShip;
               const showShip = revealShips && hasShip;
 
-              const base = "h-8 w-8 sm:h-9 sm:w-9 border border-border flex items-center justify-center select-none";
+              const base = "h-8 w-8 sm:h-9 sm:w-9 border border-border flex items-center justify-center select-none text-base sm:text-lg font-semibold";
               let stateClass = "bg-secondary";
               if (hit && hasShip) stateClass = "bg-destructive text-destructive-foreground";
               else if (hit && !hasShip) stateClass = "bg-muted text-muted-foreground";
@@ -280,6 +281,7 @@ export default function Battleship() {
             <p className="text-muted-foreground">Գուշակիր կոորդինատները և խորտակիր թշնամու նավերը։ Սկզբում քո հերթն է։</p>
           </div>
           <div className="flex items-center justify-center gap-3">
+            <Badge variant={playerTurn ? "default" : "secondary"}>{playerTurn ? "Քո հերթն է" : "Թշնամու հերթն է"}</Badge>
             <Button variant="hero" onClick={newGame}>Նոր խաղ</Button>
             <div className="text-sm text-muted-foreground">Դուրս մնաց — Քո նավեր՝ {totalPlayerRemaining} • Թշնամու՝ {totalCpuRemaining}</div>
           </div>
@@ -299,7 +301,7 @@ export default function Battleship() {
                 <CardTitle>Թշնամու դաշտը</CardTitle>
               </CardHeader>
               <CardContent>
-                <Grid board={cpuBoard} onCellClick={playerFire} ariaLabel="Թշնամու դաշտ՝ կոորդինատ" />
+                <Grid board={cpuBoard} onCellClick={playerFire} ariaLabel="Թշնամու դաշտ՝ կոորդինատ" disabled={!playerTurn || !!gameOver} />
               </CardContent>
             </Card>
           </div>
