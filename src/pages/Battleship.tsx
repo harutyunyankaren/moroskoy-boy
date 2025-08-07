@@ -225,8 +225,13 @@ export default function Battleship() {
       return;
     }
 
-    setPlayerTurn(false);
-    setTimeout(cpuFire, 700);
+    if (result === "miss") {
+      setPlayerTurn(false);
+      setTimeout(cpuFire, 700);
+    } else {
+      // keep player's turn on hit/sunk
+      setPlayerTurn(true);
+    }
   }
 
   function cpuFire() {
@@ -253,7 +258,13 @@ export default function Battleship() {
       return;
     }
 
-    setPlayerTurn(true);
+    if (result === "miss") {
+      setPlayerTurn(true);
+    } else {
+      // CPU keeps turn on hit/sunk
+      setPlayerTurn(false);
+      setTimeout(cpuFire, 700);
+    }
   }
 
   return (
