@@ -86,12 +86,14 @@ function Grid({
   disabled = false,
   onCellClick,
   ariaLabel,
+  lastShot,
 }: {
   board: Board;
   revealShips?: boolean;
   disabled?: boolean;
   onCellClick?: (x: number, y: number) => void;
   ariaLabel: string;
+  lastShot?: Coord | null;
 }) {
   return (
     <div className="inline-block">
@@ -113,9 +115,9 @@ function Grid({
               const hasShip = cell.hasShip;
               const showShip = revealShips && hasShip;
 
-              const base = "h-8 w-8 sm:h-9 sm:w-9 border border-border flex items-center justify-center select-none text-base sm:text-lg font-semibold";
+              const base = "relative h-8 w-8 sm:h-9 sm:w-9 border border-border flex items-center justify-center select-none text-base sm:text-lg font-semibold";
               let stateClass = "bg-secondary";
-              if (hit && hasShip) stateClass = "bg-destructive text-destructive-foreground";
+              if (hit && hasShip) stateClass = "bg-destructive text-destructive-foreground ring-2 ring-destructive-foreground";
               else if (hit && !hasShip) stateClass = "bg-muted text-muted-foreground";
               else if (showShip) stateClass = "bg-accent text-accent-foreground";
 
@@ -130,6 +132,11 @@ function Grid({
                   onClick={() => onCellClick && onCellClick(x, y)}
                 >
                   {hit && hasShip ? "⨉" : hit ? "•" : showShip ? "▢" : ""}
+                  {lastShot && lastShot.x === x && lastShot.y === y ? (
+                    <span className="absolute inset-0 pointer-events-none flex items-center justify-center">
+                      <span className="h-3 w-3 rounded-full bg-primary ring-2 ring-background animate-ping" />
+                    </span>
+                  ) : null}
                 </button>
               );
             })}
@@ -148,7 +155,7 @@ export default function Battleship() {
   const [cpuShips, setCpuShips] = useState<Record<number, Ship>>({});
   const [playerTurn, setPlayerTurn] = useState(true);
   const [gameOver, setGameOver] = useState<null | "player" | "cpu">(null);
-
+  const [cpuLastShot, setCpuLastShot] = useState<Coord | null>(null);
   // signature interaction: pointer-reactive gradient
   const surfaceRef = useRef<HTMLDivElement | null>(null);
   const onPointerMove = (e: React.MouseEvent) => {
@@ -170,6 +177,7 @@ export default function Battleship() {
     setCpuShips(c.ships);
     setPlayerTurn(true);
     setGameOver(null);
+    setCpuLastShot(null);
     toast({ title: "Նոր խաղ", description: "Նավերը տեղադրված են. քո հերթն է!" });
   }
 
@@ -245,6 +253,7 @@ export default function Battleship() {
     }
     if (!candidates.length) return;
     const pick = candidates[Math.floor(Math.random() * candidates.length)];
+    setCpuLastShot(pick);
     const { board: nb, ships: ns, result } = registerHit(playerBoard, playerShips, pick.x, pick.y);
     setPlayerBoard(nb);
     setPlayerShips(ns);
@@ -292,7 +301,7 @@ export default function Battleship() {
                 <CardTitle>Քո դաշտը</CardTitle>
               </CardHeader>
               <CardContent>
-                <Grid board={playerBoard} revealShips ariaLabel="Քո դաշտ՝ կոորդինատ" disabled />
+                <Grid board={playerBoard} revealShips ariaLabel="Քո դաշտ՝ կոորդինատ" disabled lastShot={cpuLastShot} />
               </CardContent>
             </Card>
 
