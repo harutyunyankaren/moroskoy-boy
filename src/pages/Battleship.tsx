@@ -115,9 +115,9 @@ function Grid({
               const hasShip = cell.hasShip;
               const showShip = revealShips && hasShip;
 
-              const base = "relative h-8 w-8 sm:h-9 sm:w-9 border border-border flex items-center justify-center select-none text-base sm:text-lg font-semibold";
+              const base = "relative h-8 w-8 sm:h-9 sm:w-9 border border-border flex items-center justify-center select-none text-base sm:text-lg font-semibold transition-all duration-300";
               let stateClass = "bg-secondary";
-              if (hit && hasShip) stateClass = "bg-destructive text-destructive-foreground ring-2 ring-destructive-foreground";
+              if (hit && hasShip) stateClass = "bg-destructive text-destructive-foreground ring-4 ring-destructive shadow-lg shadow-destructive/50 animate-pulse";
               else if (hit && !hasShip) stateClass = "bg-muted text-muted-foreground";
               else if (showShip) stateClass = "bg-accent text-accent-foreground";
 
