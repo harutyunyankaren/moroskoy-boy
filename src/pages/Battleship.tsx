@@ -95,6 +95,8 @@ function Grid({
   ariaLabel: string;
   lastShot?: Coord | null;
 }) {
+  console.log('Grid render:', { revealShips, lastShot, boardState: board.map(row => row.map(cell => ({ hit: cell.hit, hasShip: cell.hasShip }))) });
+  
   return (
     <div className="inline-block">
       <div className="grid grid-cols-[auto_repeat(10,minmax(28px,1fr))] gap-0">
@@ -122,6 +124,8 @@ function Grid({
               else if (showShip) stateClass = "bg-accent text-accent-foreground";
 
               const aria = coordLabel(x, y);
+
+              console.log(`Cell ${aria}:`, { hit, hasShip, showShip, stateClass });
 
               return (
                 <button
@@ -196,10 +200,12 @@ export default function Battleship() {
     x: number,
     y: number
   ) {
+    console.log('registerHit called:', { x, y, cellBefore: board[y][x] });
     const next = cloneBoard(board);
     const cell = next[y][x];
     if (cell.hit) return { board: next, ships, result: "repeat" as const };
     cell.hit = true;
+    console.log('Cell after hit:', { x, y, cellAfter: cell });
     if (cell.hasShip && cell.shipId) {
       const ship = { ...ships[cell.shipId] };
       ship.hits += 1;
@@ -245,6 +251,7 @@ export default function Battleship() {
 
   function cpuFire() {
     if (gameOver) return;
+    console.log('CPU fire starting...');
     const candidates: Coord[] = [];
     for (let y = 0; y < BOARD_SIZE; y++) {
       for (let x = 0; x < BOARD_SIZE; x++) {
@@ -253,8 +260,13 @@ export default function Battleship() {
     }
     if (!candidates.length) return;
     const pick = candidates[Math.floor(Math.random() * candidates.length)];
+    console.log('CPU picked coordinate:', pick);
     setCpuLastShot(pick);
+    
+    console.log('Player board before CPU hit:', playerBoard[pick.y][pick.x]);
     const { board: nb, ships: ns, result } = registerHit(playerBoard, playerShips, pick.x, pick.y);
+    console.log('CPU hit result:', result, 'new board cell:', nb[pick.y][pick.x]);
+    
     setPlayerBoard(nb);
     setPlayerShips(ns);
 
