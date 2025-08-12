@@ -118,10 +118,10 @@ function Grid({
               const showShip = revealShips && hasShip;
 
               const base = "relative h-8 w-8 sm:h-9 sm:w-9 border border-border flex items-center justify-center select-none text-base sm:text-lg font-semibold transition-all duration-300";
-              let stateClass = "bg-secondary";
-              if (hit && hasShip) stateClass = "bg-destructive text-destructive-foreground ring-4 ring-destructive shadow-lg shadow-destructive/50 animate-pulse";
-              else if (hit && !hasShip) stateClass = "bg-muted text-muted-foreground";
-              else if (showShip) stateClass = "bg-accent text-accent-foreground";
+              let stateClass = "bg-secondary hover:bg-secondary/80";
+              if (hit && hasShip) stateClass = "bg-destructive text-destructive-foreground ring-2 ring-destructive/30 shadow-xl shadow-destructive/40 border-destructive/50 scale-105 animate-pulse";
+              else if (hit && !hasShip) stateClass = "bg-muted/60 text-muted-foreground border-muted/40 shadow-md";
+              else if (showShip) stateClass = "bg-accent text-accent-foreground border-accent/30";
 
               const aria = coordLabel(x, y);
 
