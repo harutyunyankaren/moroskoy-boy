@@ -252,41 +252,50 @@ export default function Battleship() {
   function cpuFire() {
     if (gameOver) return;
     console.log('CPU fire starting...');
-    const candidates: Coord[] = [];
-    for (let y = 0; y < BOARD_SIZE; y++) {
-      for (let x = 0; x < BOARD_SIZE; x++) {
-        if (!playerBoard[y][x].hit) candidates.push({ x, y });
+    
+    // Use current state via callback to ensure we have latest values
+    setPlayerBoard(currentBoard => {
+      const candidates: Coord[] = [];
+      for (let y = 0; y < BOARD_SIZE; y++) {
+        for (let x = 0; x < BOARD_SIZE; x++) {
+          if (!currentBoard[y][x].hit) candidates.push({ x, y });
+        }
       }
-    }
-    if (!candidates.length) return;
-    const pick = candidates[Math.floor(Math.random() * candidates.length)];
-    console.log('CPU picked coordinate:', pick);
-    setCpuLastShot(pick);
-    
-    console.log('Player board before CPU hit:', playerBoard[pick.y][pick.x]);
-    const { board: nb, ships: ns, result } = registerHit(playerBoard, playerShips, pick.x, pick.y);
-    console.log('CPU hit result:', result, 'new board cell:', nb[pick.y][pick.x]);
-    
-    setPlayerBoard(nb);
-    setPlayerShips(ns);
+      if (!candidates.length) return currentBoard;
+      
+      const pick = candidates[Math.floor(Math.random() * candidates.length)];
+      console.log('CPU picked coordinate:', pick);
+      setCpuLastShot(pick);
+      
+      console.log('Player board before CPU hit:', currentBoard[pick.y][pick.x]);
+      
+      // Use functional update for ships as well
+      setPlayerShips(currentShips => {
+        const { board: nb, ships: ns, result } = registerHit(currentBoard, currentShips, pick.x, pick.y);
+        console.log('CPU hit result:', result, 'new board cell:', nb[pick.y][pick.x]);
+        
+        if (result === "hit" || result === "sunk") {
+          toast({ title: "Թշնամու հարված", description: `${coordLabel(pick.x, pick.y)} — խփել է։` });
+        }
 
-    if (result === "hit" || result === "sunk") {
-      toast({ title: "Թշնամու հարված", description: `${coordLabel(pick.x, pick.y)} — խփել է։` });
-    }
-
-    if (checkWin(ns)) {
-      setGameOver("cpu");
-      toast({ title: "Պարտություն", description: "Թշնամին խորտակեց բոլոր նավերը։" });
-      return;
-    }
-
-    if (result === "miss") {
-      setPlayerTurn(true);
-    } else {
-      // CPU keeps turn on hit/sunk
-      setPlayerTurn(false);
-      setTimeout(cpuFire, 700);
-    }
+        if (checkWin(ns)) {
+          setGameOver("cpu");
+          toast({ title: "Պարտություն", description: "Թշնամին խորտակեց բոլոր նավերը։" });
+        } else if (result === "miss") {
+          setPlayerTurn(true);
+        } else {
+          // CPU keeps turn on hit/sunk
+          setPlayerTurn(false);
+          setTimeout(cpuFire, 700);
+        }
+        
+        return ns;
+      });
+      
+      // Return the updated board
+      const { board: nb } = registerHit(currentBoard, playerShips, pick.x, pick.y);
+      return nb;
+    });
   }
 
   return (
