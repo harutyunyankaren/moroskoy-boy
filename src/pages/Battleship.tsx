@@ -82,6 +82,7 @@ function coordLabel(x: number, y: number) {
 
 function Grid({
   board,
+  ships = {},
   revealShips = false,
   disabled = false,
   onCellClick,
@@ -89,6 +90,7 @@ function Grid({
   lastShot,
 }: {
   board: Board;
+  ships?: Record<number, Ship>;
   revealShips?: boolean;
   disabled?: boolean;
   onCellClick?: (x: number, y: number) => void;
@@ -116,10 +118,14 @@ function Grid({
               const hit = cell.hit;
               const hasShip = cell.hasShip;
               const showShip = revealShips && hasShip;
+              
+              // Check if this cell's ship is completely sunk
+              const isShipSunk = hit && hasShip && cell.shipId && ships[cell.shipId] && ships[cell.shipId].hits >= ships[cell.shipId].size;
 
               const base = "relative h-8 w-8 sm:h-9 sm:w-9 border border-border flex items-center justify-center select-none text-base sm:text-lg font-semibold transition-all duration-300";
               let stateClass = "bg-secondary hover:bg-secondary/80";
-              if (hit && hasShip) stateClass = "bg-destructive text-destructive-foreground ring-2 ring-destructive/30 shadow-xl shadow-destructive/40 border-destructive/50 scale-105 animate-scale-in";
+              if (isShipSunk) stateClass = "bg-orange-600 text-orange-50 ring-2 ring-orange-400/50 shadow-xl shadow-orange-500/40 border-orange-500/60 scale-105 animate-scale-in";
+              else if (hit && hasShip) stateClass = "bg-destructive text-destructive-foreground ring-2 ring-destructive/30 shadow-xl shadow-destructive/40 border-destructive/50 scale-105 animate-scale-in";
               else if (hit && !hasShip) stateClass = "bg-muted/60 text-muted-foreground border-muted/40 shadow-md";
               else if (showShip) stateClass = "bg-accent text-accent-foreground border-accent/30";
 
@@ -322,7 +328,7 @@ export default function Battleship() {
                 <CardTitle>Քո դաշտը</CardTitle>
               </CardHeader>
               <CardContent>
-                <Grid board={playerBoard} revealShips ariaLabel="Քո դաշտ՝ կոորդինատ" disabled lastShot={cpuLastShot} />
+                <Grid board={playerBoard} ships={playerShips} revealShips ariaLabel="Քո դաշտ՝ կոորդինատ" disabled lastShot={cpuLastShot} />
               </CardContent>
             </Card>
 
@@ -331,7 +337,7 @@ export default function Battleship() {
                 <CardTitle>Թշնամու դաշտը</CardTitle>
               </CardHeader>
               <CardContent>
-                <Grid board={cpuBoard} onCellClick={playerFire} ariaLabel="Թշնամու դաշտ՝ կոորդինատ" disabled={!playerTurn || !!gameOver} />
+                <Grid board={cpuBoard} ships={cpuShips} onCellClick={playerFire} ariaLabel="Թշնամու դաշտ՝ կոորդինատ" disabled={!playerTurn || !!gameOver} />
               </CardContent>
             </Card>
           </div>
