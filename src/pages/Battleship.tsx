@@ -125,7 +125,7 @@ function Grid({
               const base = "relative h-8 w-8 sm:h-9 sm:w-9 border border-border flex items-center justify-center select-none text-base sm:text-lg font-semibold transition-all duration-300";
               let stateClass = "bg-secondary hover:bg-secondary/80";
               if (isShipSunk) stateClass = "bg-orange-600 text-orange-50 ring-2 ring-orange-400/50 shadow-xl shadow-orange-500/40 border-orange-500/60 scale-105 animate-scale-in";
-              else if (hit && hasShip) stateClass = "bg-destructive text-destructive-foreground ring-2 ring-destructive/30 shadow-xl shadow-destructive/40 border-destructive/50 scale-105 animate-scale-in";
+              else if (hit && hasShip) stateClass = "bg-destructive text-destructive-foreground border-2 border-destructive ring-2 ring-destructive/40 shadow-xl shadow-destructive/50 scale-105 animate-scale-in";
               else if (hit && !hasShip) stateClass = "bg-muted/60 text-muted-foreground border-muted/40 shadow-md";
               else if (showShip) stateClass = "bg-accent text-accent-foreground border-accent/30";
 
