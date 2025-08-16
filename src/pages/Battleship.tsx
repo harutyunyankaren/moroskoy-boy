@@ -3,7 +3,11 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { GameResults } from "@/components/GameResults";
+import { useGameTracking } from "@/hooks/useGameTracking";
 
 // Types
 type Coord = { x: number; y: number };
@@ -166,6 +170,17 @@ export default function Battleship() {
   const [playerTurn, setPlayerTurn] = useState(true);
   const [gameOver, setGameOver] = useState<null | "player" | "cpu">(null);
   const [cpuLastShot, setCpuLastShot] = useState<Coord | null>(null);
+  
+  const {
+    playerName,
+    setPlayerName,
+    playerShots,
+    computerShots,
+    startGame: startGameTracking,
+    incrementPlayerShots,
+    incrementComputerShots,
+    saveGameResult
+  } = useGameTracking();
   // signature interaction: pointer-reactive gradient
   const surfaceRef = useRef<HTMLDivElement | null>(null);
   const onPointerMove = (e: React.MouseEvent) => {
@@ -188,6 +203,7 @@ export default function Battleship() {
     setPlayerTurn(true);
     setGameOver(null);
     setCpuLastShot(null);
+    startGameTracking();
     toast({ title: "Նոր խաղ", description: "Նավերը տեղադրված են. քո հերթն է!" });
   }
 
@@ -231,6 +247,7 @@ export default function Battleship() {
     const { board: nb, ships: ns, result } = registerHit(cpuBoard, cpuShips, x, y);
     setCpuBoard(nb);
     setCpuShips(ns);
+    incrementPlayerShots();
 
     if (result === "hit") {
       toast({ title: "Խփած", description: `${coordLabel(x, y)} — լավ կրակոց!` });
@@ -242,6 +259,7 @@ export default function Battleship() {
 
     if (checkWin(ns)) {
       setGameOver("player");
+      saveGameResult("player");
       toast({ title: "Հաղթանակ", description: "Դու խորտակեցիր բոլոր նավերը!" });
       return;
     }
@@ -279,6 +297,7 @@ export default function Battleship() {
       setPlayerShips(currentShips => {
         const { board: nb, ships: ns, result } = registerHit(currentBoard, currentShips, pick.x, pick.y);
         console.log('CPU hit result:', result, 'new board cell:', nb[pick.y][pick.x]);
+        incrementComputerShots();
         
         if (result === "hit" || result === "sunk") {
           toast({ title: "Թշնամու հարված", description: `${coordLabel(pick.x, pick.y)} — խփել է։` });
@@ -286,6 +305,7 @@ export default function Battleship() {
 
         if (checkWin(ns)) {
           setGameOver("cpu");
+          saveGameResult("cpu");
           toast({ title: "Պարտություն", description: "Թշնամին խորտակեց բոլոր նավերը։" });
         } else if (result === "miss") {
           setPlayerTurn(true);
@@ -316,11 +336,26 @@ export default function Battleship() {
             <h1 className="text-3xl sm:text-4xl font-bold">Ծովային պատերազմներ — Խաղա հիմա</h1>
             <p className="text-muted-foreground">Գուշակիր կոորդինատները և խորտակիր թշնամու նավերը։ Սկզբում քո հերթն է։</p>
           </div>
-          <div className="flex items-center justify-center gap-3">
+          
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <div className="flex items-center gap-2">
+              <Label htmlFor="player-name" className="text-sm">Անուն:</Label>
+              <Input
+                id="player-name"
+                value={playerName}
+                onChange={(e) => setPlayerName(e.target.value)}
+                className="w-32 h-8 text-sm"
+                placeholder="Քո անունը"
+              />
+            </div>
             <Badge variant={playerTurn ? "default" : "secondary"}>{playerTurn ? "Քո հերթն է" : "Թշնամու հերթն է"}</Badge>
             <Button variant="hero" onClick={newGame}>Նոր խաղ</Button>
-            <div className="text-sm text-muted-foreground">Դուրս մնաց — Քո նավեր՝ {totalPlayerRemaining} • Թշնամու՝ {totalCpuRemaining}</div>
+            <div className="text-sm text-muted-foreground">
+              Կրակոցներ՝ {playerShots} • Նավեր՝ {totalPlayerRemaining} / {totalCpuRemaining}
+            </div>
           </div>
+          
+          <GameResults />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>

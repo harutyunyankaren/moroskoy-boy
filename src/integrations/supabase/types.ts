@@ -14,7 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      game_results: {
+        Row: {
+          computer_shots: number
+          created_at: string
+          game_duration_seconds: number | null
+          id: string
+          opponent_name: string
+          player_name: string
+          player_shots: number
+          winner: string
+        }
+        Insert: {
+          computer_shots?: number
+          created_at?: string
+          game_duration_seconds?: number | null
+          id?: string
+          opponent_name?: string
+          player_name: string
+          player_shots?: number
+          winner: string
+        }
+        Update: {
+          computer_shots?: number
+          created_at?: string
+          game_duration_seconds?: number | null
+          id?: string
+          opponent_name?: string
+          player_name?: string
+          player_shots?: number
+          winner?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
